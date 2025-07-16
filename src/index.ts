@@ -8,6 +8,12 @@ connectDB()
         // Start server
         app.listen(config.port, () => {
             console.log(`⚡️[server]: Server is running at http://localhost:${config.port}`);
+            console.log('🌐 CORS: Enabled for all origins');
+            console.log('🛣️  Available routes:');
+            console.log('   - GET  /');
+            console.log('   - GET  /health');
+            console.log('   - /api/users/*');
+            console.log('   - /api/arweave/*');
         });
     })
     .catch((error) => {
