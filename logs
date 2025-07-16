@@ -1,5 +1,0 @@
-[7/16/2025, 7:11:34 AM] GET /mint/xPlxIUP2nNO8cLojdqnKabu9ad_omzW0hypjTOIZiA8/1000000000000000 200 70ms 
-[7/16/2025, 7:20:14 AM] GET /price/39 200 6ms 
-[7/16/2025, 7:20:17 AM] GET /tx_anchor 200 11ms 
-[7/16/2025, 7:20:17 AM] GET /price/39 200 2ms 
-[7/16/2025, 7:20:17 AM] POST /tx 200 174ms 
