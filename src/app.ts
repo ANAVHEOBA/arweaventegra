@@ -13,6 +13,19 @@ app.use(morgan('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Root route
+app.get('/', (req: Request, res: Response) => {
+    res.status(200).json({
+        message: 'Welcome to ArweaveNtegra API',
+        version: '1.0.0',
+        endpoints: {
+            health: '/health',
+            users: '/api/users',
+            arweave: '/api/arweave'
+        }
+    });
+});
+
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/arweave', arweaveRoutes);
