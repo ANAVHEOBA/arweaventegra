@@ -1,12 +1,8 @@
 import express, { Application, Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import { config } from 'dotenv';
 import userRoutes from './modules/user/user.route';
 import arweaveRoutes from './modules/arweave/arweave.route';
-
-// Load environment variables
-config();
 
 // Create Express application
 const app: Application = express();
