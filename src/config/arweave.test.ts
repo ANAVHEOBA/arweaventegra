@@ -31,6 +31,12 @@ export class ArweaveTestConfig {
             await this.arweave.api.get(`/mint/${walletAddress}/1000000000000000`);
             
             console.log('Created and funded test wallet:', walletAddress);
+        } else {
+            // If wallet exists, ensure it's funded
+            const wallet = this.getTestWallet();
+            const walletAddress = await this.arweave.wallets.jwkToAddress(wallet);
+            await this.arweave.api.get(`/mint/${walletAddress}/1000000000000000`);
+            console.log('Funded existing test wallet:', walletAddress);
         }
 
         console.log('ArLocal test environment running on http://localhost:1984');
@@ -48,5 +54,16 @@ export class ArweaveTestConfig {
             return JSON.parse(fs.readFileSync(walletPath, 'utf8'));
         }
         throw new Error('Test wallet not found. Please start the test environment first.');
+    }
+
+    static getArweave() {
+        if (!this.arweave) {
+            this.arweave = Arweave.init({
+                host: 'localhost',
+                port: 1984,
+                protocol: 'http'
+            });
+        }
+        return this.arweave;
     }
 } 

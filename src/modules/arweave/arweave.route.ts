@@ -28,4 +28,18 @@ router.get(
     ArweaveController.getFileStatus
 );
 
+// Get all files for a wallet address (paginated)
+router.get(
+    '/files',
+    AuthMiddleware.verifyToken,
+    ArweaveController.getUserFiles
+);
+
+// Retry failed upload
+router.post(
+    '/retry/:transactionId',
+    AuthMiddleware.verifyToken,
+    ArweaveController.retryUpload
+);
+
 export default router;

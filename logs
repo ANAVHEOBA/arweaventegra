@@ -1,5 +1,5 @@
-[7/16/2025, 3:23:13 AM] GET /mint/xPlxIUP2nNO8cLojdqnKabu9ad_omzW0hypjTOIZiA8/1000000000000000 200 37ms 
-[7/16/2025, 3:42:07 AM] GET /price/20 200 5ms 
-[7/16/2025, 3:43:55 AM] GET /price/20 200 3ms 
-[7/16/2025, 3:43:55 AM] GET /tx_anchor 200 7ms 
-[7/16/2025, 3:43:55 AM] GET /price/20 200 2ms 
+[7/16/2025, 7:11:34 AM] GET /mint/xPlxIUP2nNO8cLojdqnKabu9ad_omzW0hypjTOIZiA8/1000000000000000 200 70ms 
+[7/16/2025, 7:20:14 AM] GET /price/39 200 6ms 
+[7/16/2025, 7:20:17 AM] GET /tx_anchor 200 11ms 
+[7/16/2025, 7:20:17 AM] GET /price/39 200 2ms 
+[7/16/2025, 7:20:17 AM] POST /tx 200 174ms 

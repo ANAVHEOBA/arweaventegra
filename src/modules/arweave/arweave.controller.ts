@@ -55,23 +55,24 @@ export class ArweaveController {
                 const { transactionId } = await ArweaveCrud.uploadFile(
                     file.buffer,
                     file.mimetype,
-                    tags
+                    tags,
+                    tempTransactionId
                 );
 
-                // Update file record with actual transaction ID and status
-                const updatedRecord = await ArweaveCrud.updateFileStatus(
-                    tempTransactionId,
-                    'processing',
-                    `https://${process.env.NODE_ENV === 'production' ? 'arweave.net' : 'localhost:1984'}/${transactionId}`
-                );
+                // Get the updated record
+                const updatedRecord = await ArweaveCrud.getFileByTransactionId(transactionId);
+
+                if (!updatedRecord) {
+                    throw new Error('Failed to get updated file record');
+                }
 
                 return res.status(200).json({
                     message: 'File uploaded successfully',
                     data: {
                         transactionId,
-                        cost: updatedRecord?.cost,
-                        status: updatedRecord?.status,
-                        permanentUrl: updatedRecord?.permanentUrl
+                        cost: updatedRecord.cost,
+                        status: updatedRecord.status,
+                        permanentUrl: updatedRecord.permanentUrl
                     }
                 });
 
@@ -113,6 +114,89 @@ export class ArweaveController {
         } catch (error) {
             console.error('Get file status error:', error);
             return res.status(500).json({ message: 'Internal server error' });
+        }
+    }
+
+    static async getUserFiles(req: AuthRequest, res: Response) {
+        try {
+            const walletAddress = req.user?.walletAddress;
+            if (!walletAddress) {
+                return res.status(401).json({ message: 'Wallet address required' });
+            }
+
+            const page = parseInt(req.query.page as string) || 1;
+            const limit = parseInt(req.query.limit as string) || 10;
+
+            const result = await ArweaveCrud.getUserFiles(walletAddress, page, limit);
+
+            return res.status(200).json({
+                message: 'Files retrieved successfully',
+                data: {
+                    files: result.files.map(file => ({
+                        transactionId: file.transactionId,
+                        fileName: file.fileName,
+                        fileSize: file.fileSize,
+                        status: file.status,
+                        permanentUrl: file.permanentUrl,
+                        uploadedAt: file.createdAt,
+                        cost: file.cost,
+                        metadata: file.metadata
+                    })),
+                    pagination: {
+                        total: result.total,
+                        pages: result.pages,
+                        currentPage: page,
+                        limit
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Get user files error:', error);
+            return res.status(500).json({ 
+                message: 'Failed to retrieve files',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
+        }
+    }
+
+    static async retryUpload(req: AuthRequest, res: Response) {
+        try {
+            const { transactionId } = req.params;
+            const walletAddress = req.user?.walletAddress;
+
+            if (!walletAddress) {
+                return res.status(401).json({ message: 'Wallet address required' });
+            }
+
+            // Get the file record first to check ownership
+            const fileRecord = await ArweaveCrud.getFileByTransactionId(transactionId);
+            if (!fileRecord) {
+                return res.status(404).json({ message: 'File not found' });
+            }
+
+            // Check if the user owns this file
+            if (fileRecord.uploadedBy !== walletAddress) {
+                return res.status(403).json({ message: 'Not authorized to retry this upload' });
+            }
+
+            // Attempt to retry the upload
+            const updatedRecord = await ArweaveCrud.retryUpload(transactionId);
+
+            return res.status(200).json({
+                message: 'Upload retry initiated successfully',
+                data: {
+                    transactionId: updatedRecord.transactionId,
+                    status: updatedRecord.status,
+                    permanentUrl: updatedRecord.permanentUrl
+                }
+            });
+
+        } catch (error) {
+            console.error('Retry upload error:', error);
+            return res.status(500).json({ 
+                message: 'Failed to retry upload',
+                error: error instanceof Error ? error.message : 'Unknown error'
+            });
         }
     }
 }

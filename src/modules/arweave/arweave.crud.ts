@@ -2,6 +2,7 @@ import Arweave from 'arweave';
 import ArweaveFileModel from './arweave.model';
 import { IArweaveFileDocument } from './arweave.interface';
 import { config } from '../../config/environment';
+import fs from 'fs';
 
 export class ArweaveCrud {
     private static arweave = new Arweave({
@@ -57,6 +58,7 @@ export class ArweaveCrud {
                 bytes: fileSize
             };
         } catch (error) {
+            console.error('Error calculating upload cost:', error);
             throw new Error(`Error calculating upload cost: ${error}`);
         }
     }
@@ -64,38 +66,125 @@ export class ArweaveCrud {
     static async uploadFile(
         fileBuffer: Buffer,
         contentType: string,
-        tags: { name: string; value: string }[]
+        tags: { name: string; value: string }[],
+        tempTransactionId?: string
     ): Promise<{ transactionId: string }> {
         try {
             // Get wallet from config
+            console.log('Getting wallet from config...');
             const wallet = await config.arweave.getWallet();
+            console.log('Wallet loaded successfully');
 
             // Create transaction
+            console.log('Creating transaction...');
             const transaction = await this.arweave.createTransaction({
                 data: fileBuffer
             }, wallet);
+            console.log('Transaction created successfully');
 
             // Add tags
+            console.log('Adding tags to transaction...');
             transaction.addTag('Content-Type', contentType);
             for (const tag of tags) {
                 transaction.addTag(tag.name, tag.value);
             }
+            console.log('Tags added successfully');
 
             // Sign transaction
+            console.log('Signing transaction...');
             await this.arweave.transactions.sign(transaction, wallet);
+            console.log('Transaction signed successfully');
 
             // Submit transaction
-            const uploader = await this.arweave.transactions.getUploader(transaction);
-            
-            while (!uploader.isComplete) {
-                await uploader.uploadChunk();
+            console.log('Uploading transaction...');
+            try {
+                const uploader = await this.arweave.transactions.getUploader(transaction);
+                
+                while (!uploader.isComplete) {
+                    await uploader.uploadChunk();
+                    console.log(`Upload progress: ${uploader.pctComplete}%`);
+                }
+                console.log('Upload completed successfully');
+
+                // Update the record with new transaction ID and confirmed status
+                if (tempTransactionId) {
+                    await ArweaveFileModel.findOneAndUpdate(
+                        { transactionId: tempTransactionId },
+                        {
+                            transactionId: transaction.id,
+                            status: 'confirmed',
+                            permanentUrl: `http://${process.env.NODE_ENV === 'production' ? 'arweave.net' : 'localhost:1984'}/${transaction.id}`
+                        },
+                        { new: true }
+                    );
+                    console.log('File record updated with confirmed status');
+                }
+
+            } catch (uploadError) {
+                console.error('Upload error details:', uploadError);
+                throw uploadError;
             }
 
             return {
                 transactionId: transaction.id
             };
         } catch (error) {
+            console.error('Full error details:', error);
             throw new Error(`Error uploading file: ${error}`);
+        }
+    }
+
+    static async retryUpload(transactionId: string): Promise<IArweaveFileDocument> {
+        try {
+            // Get the failed upload record
+            const fileRecord = await this.getFileByTransactionId(transactionId);
+            if (!fileRecord) {
+                throw new Error('File record not found');
+            }
+
+            if (fileRecord.status !== 'failed') {
+                throw new Error('Only failed uploads can be retried');
+            }
+
+            // Get the file content from the original file path or storage
+            const filePath = `uploads/${transactionId}`; // You might need to adjust this based on your storage setup
+            let fileBuffer: Buffer;
+            
+            try {
+                fileBuffer = fs.readFileSync(filePath);
+            } catch (error) {
+                throw new Error('Original file content not found');
+            }
+
+            // Prepare tags from metadata
+            const tags = fileRecord.metadata.tags;
+
+            // Try upload again
+            const { transactionId: newTransactionId } = await this.uploadFile(
+                fileBuffer,
+                fileRecord.contentType,
+                tags
+            );
+
+            // Update the record with new transaction ID and status
+            const updatedRecord = await ArweaveFileModel.findOneAndUpdate(
+                { transactionId },
+                {
+                    transactionId: newTransactionId,
+                    status: 'processing',
+                    permanentUrl: `https://${process.env.NODE_ENV === 'production' ? 'arweave.net' : 'localhost:1984'}/${newTransactionId}`
+                },
+                { new: true }
+            );
+
+            if (!updatedRecord) {
+                throw new Error('Failed to update file record');
+            }
+
+            return updatedRecord;
+        } catch (error) {
+            console.error('Retry upload error:', error);
+            throw new Error(`Failed to retry upload: ${error}`);
         }
     }
 

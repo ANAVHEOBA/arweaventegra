@@ -1,0 +1,30 @@
+a@a:~/arweaventegra$ curl -X POST "http://localhost:5000/api/arweave/upload" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3YWxsZXRBZGRyZXNzIjoiMHgxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVmMDEyMzQ1Njc4IiwiaWF0IjoxNzUyNjUxNTM1LCJleHAiOjE3NTI3Mzc5MzV9.ZqtPGYgVlLc8SdFJCTTWu32npxHIvS2sZfBDqdhHXVk" -F "file=@test.txt"
+{"message":"File uploaded successfully","data":{"transactionId":"jhLxVL_8YSMYG-vqmsXw8IjT6SPqgxsOcFCt3KbczHM","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"status":"confirmed","permanentUrl":"http://localhost:1984/jhLxVL_8YSMYG-vqmsXw8IjT6SPqgxsOcFCt3KbczHM"}}a@a:~/arweaventegra$ 
+
+
+
+
+
+
+
+a@a:~/arweaventegra$ curl -X GET "http://localhost:5000/api/arweave/status/jhLxVL_8YSMYG-vqmsXw8IjT6SPqgxsOcFCt3KbczHM" -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3YWxsZXRBZGRyZXNzIjoiMHgxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVmMDEyMzQ1Njc4IiwiaWF0IjoxNzUyNjUxNTM1LCJleHAiOjE3NTI3Mzc5MzV9.ZqtPGYgVlLc8SdFJCTTWu32npxHIvS2sZfBDqdhHXVk"
+{"data":{"transactionId":"jhLxVL_8YSMYG-vqmsXw8IjT6SPqgxsOcFCt3KbczHM","status":"confirmed","permanentUrl":"http://localhost:1984/jhLxVL_8YSMYG-vqmsXw8IjT6SPqgxsOcFCt3KbczHM","fileName":"test.txt","fileSize":20,"uploadedAt":"2025-07-16T10:42:47.404Z"}}a@a:~/arweaventegra$ 
+
+
+
+
+
+a@a:~/arweaventegra$ curl "http://localhost:1984/jhLxVL_8YSMYG-vqmsXw8IjT6SPqgxsOcFCt3KbczHM"
+This is a test file
+a@a:~/arweaventegra$ 
+
+
+
+
+
+
+
+
+a@a:~/arweaventegra$ curl -X GET "http://localhost:5000/api/arweave/files?page=1&limit=10" \
+  -H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ3YWxsZXRBZGRyZXNzIjoiMHgxMjM0NTY3ODlhYmNkZWYwMTIzNDU2Nzg5YWJjZGVmMDEyMzQ1Njc4IiwiaWF0IjoxNzUyNjUxNTM1LCJleHAiOjE3NTI3Mzc5MzV9.ZqtPGYgVlLc8SdFJCTTWu32npxHIvS2sZfBDqdhHXVk"
+{"message":"Files retrieved successfully","data":{"files":[{"transactionId":"bd62b889a4fb13bf95a2969c111fc7dd456c14b2f215b80201dd2b79cc4b3e9b","fileName":"test.txt","fileSize":20,"status":"processing","permanentUrl":"https://localhost:1984/GEjbXKO9bnS8-EW_DaMWLP5xP8hJGUFrx-JppE9HA98","uploadedAt":"2025-07-16T10:16:48.117Z","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"metadata":{"tags":[{"name":"Content-Type","value":"text/plain","_id":"68777c10e6a1d381035fa04d"},{"name":"User-Agent","value":"curl/7.81.0","_id":"68777c10e6a1d381035fa04e"},{"name":"Original-Name","value":"test.txt","_id":"68777c10e6a1d381035fa04f"},{"name":"Uploader-Address","value":"0x123456789abcdef0123456789abcdef012345678","_id":"68777c10e6a1d381035fa050"}]}},{"transactionId":"30649f8ed90b937ddd3ad6f9787083077d53a0a8cc0161024e974ce52d225599","fileName":"test.txt","fileSize":20,"status":"failed","uploadedAt":"2025-07-16T10:15:03.594Z","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"metadata":{"tags":[{"name":"Content-Type","value":"text/plain","_id":"68777ba73523dde14bb000db"},{"name":"User-Agent","value":"curl/7.81.0","_id":"68777ba73523dde14bb000dc"},{"name":"Original-Name","value":"test.txt","_id":"68777ba73523dde14bb000dd"},{"name":"Uploader-Address","value":"0x123456789abcdef0123456789abcdef012345678","_id":"68777ba73523dde14bb000de"}]}},{"transactionId":"4504218ad7c64c3b39bd4998932a4c23b14f30b22f200727aeab72661a8285f6","fileName":"test.txt","fileSize":20,"status":"failed","uploadedAt":"2025-07-16T10:14:22.333Z","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"metadata":{"tags":[{"name":"Content-Type","value":"text/plain","_id":"68777b7e81c2eaf3a7cf7179"},{"name":"User-Agent","value":"curl/7.81.0","_id":"68777b7e81c2eaf3a7cf717a"},{"name":"Original-Name","value":"test.txt","_id":"68777b7e81c2eaf3a7cf717b"},{"name":"Uploader-Address","value":"0x123456789abcdef0123456789abcdef012345678","_id":"68777b7e81c2eaf3a7cf717c"}]}},{"transactionId":"dc44f8e49fd2e4cfebce44cf4c749c20cfa66eea8df6c4e367d60cd14e9f8aae","fileName":"test.txt","fileSize":20,"status":"failed","uploadedAt":"2025-07-16T10:12:46.557Z","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"metadata":{"tags":[{"name":"Content-Type","value":"text/plain","_id":"68777b1e81c2eaf3a7cf716d"},{"name":"User-Agent","value":"curl/7.81.0","_id":"68777b1e81c2eaf3a7cf716e"},{"name":"Original-Name","value":"test.txt","_id":"68777b1e81c2eaf3a7cf716f"},{"name":"Uploader-Address","value":"0x123456789abcdef0123456789abcdef012345678","_id":"68777b1e81c2eaf3a7cf7170"}]}},{"transactionId":"aae5911adc8999a5592c4a0ed19767410f8701d21392fd15027913d1f595c1fd","fileName":"test.txt","fileSize":20,"status":"failed","uploadedAt":"2025-07-16T10:07:19.880Z","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"metadata":{"tags":[{"name":"Content-Type","value":"text/plain","_id":"687779d781c2eaf3a7cf7161"},{"name":"User-Agent","value":"curl/7.81.0","_id":"687779d781c2eaf3a7cf7162"},{"name":"Original-Name","value":"test.txt","_id":"687779d781c2eaf3a7cf7163"},{"name":"Uploader-Address","value":"0x123456789abcdef0123456789abcdef012345678","_id":"687779d781c2eaf3a7cf7164"}]}},{"transactionId":"9ddfafc74bb46f0cdde8dc5886ec944e03fe431633398ced6fd70457c957c61b","fileName":"test.txt","fileSize":20,"status":"failed","uploadedAt":"2025-07-16T10:00:10.414Z","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"metadata":{"tags":[{"name":"Content-Type","value":"text/plain","_id":"6877782a81c2eaf3a7cf7155"},{"name":"User-Agent","value":"curl/7.81.0","_id":"6877782a81c2eaf3a7cf7156"},{"name":"Original-Name","value":"test.txt","_id":"6877782a81c2eaf3a7cf7157"},{"name":"Uploader-Address","value":"0x123456789abcdef0123456789abcdef012345678","_id":"6877782a81c2eaf3a7cf7158"}]}},{"transactionId":"bf95e1b21dc5fb91b6ad98c461d22470b462ba9450d5285344173774bd91acf9","fileName":"test.txt","fileSize":20,"status":"failed","uploadedAt":"2025-07-16T07:43:55.351Z","cost":{"ar":0.00000131191,"usd":0,"bytes":20},"metadata":{"tags":[{"name":"Content-Type","value":"text/plain","_id":"6877583ba75388bfead3959c"},{"name":"User-Agent","value":"curl/7.81.0","_id":"6877583ba75388bfead3959d"},{"name":"Original-Name","value":"test.txt","_id":"6877583ba75388bfead3959e"},{"name":"Uploader-Address","value":"0x123456789abcdef0123456789abcdef012345678","_id":"6877583ba75388bfead3959f"}]}}],"pagination":{"total":7,"pages":1,"currentPage":1,"limit":10}}}a@a:~/arweaventegra$ 
